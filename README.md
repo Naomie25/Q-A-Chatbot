@@ -4,7 +4,22 @@ An interactive **Q&A chatbot** and **data exploration tool** built with Python, 
 It allows you to **ask questions** about GDP, life expectancy, and literacy rates for any country, and also **explore trends** with charts, descriptive statistics, and forecasts.
 
 ---
+🎯 Project Goal
+The goal of this project is to create an interactive data exploration and question-answering tool that allows users to easily retrieve and analyze GDP, life expectancy, and literacy rate data for countries worldwide.
 
+It combines:
+
+Automated data retrieval from the World Bank API
+
+Natural language question parsing for quick answers
+
+Statistical analysis and forecasting for deeper insights
+
+Interactive visualizations to explore historical trends
+
+The system aims to make global socio-economic data more accessible, helping students, researchers, and analysts quickly obtain insights without manually processing datasets.
+
+---
 ## 🚀 Features
 
 ### **1. Data Loading & Caching**
