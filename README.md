@@ -5,6 +5,7 @@ It allows you to **ask questions** about GDP, life expectancy, and literacy rate
 
 ---
 🎯 Project Goal
+
 The goal of this project is to create an interactive data exploration and question-answering tool that allows users to easily retrieve and analyze GDP, life expectancy, and literacy rate data for countries worldwide.
 
 It combines:
