@@ -1,85 +1,54 @@
-# Final-Project-Bootcamp
-# 📊 Q&A Chatbot for Public Datasets
+# 📊 Public Data QA Chatbot + Analytics
 
-An intelligent assistant capable of automatically answering questions about open public datasets.  
-This project combines data cleaning, vector-based retrieval (FAISS), NLP with pre-trained models (GPT/BERT), and a user-friendly Gradio interface.
-
----
-
-## 🎯 Project Goal
-
-The goal of this project is to build a natural language interface that allows users to ask questions about real-world public datasets (e.g., health, environment, demographics) and get accurate, understandable answers — powered by a combination of machine learning and retrieval-augmented generation (RAG).
+An interactive **Q&A chatbot** and **data exploration tool** built with Python, Pandas, Gradio, and World Bank Open Data.  
+It allows you to **ask questions** about GDP, life expectancy, and literacy rates for any country, and also **explore trends** with charts, descriptive statistics, and forecasts.
 
 ---
 
-## 🧱 Project Structure
+## 🚀 Features
 
-```
-project/
-├── data/                  # Public datasets (CSV format)
-│   ├── health.csv
-│   └── emissions.csv
-├── faiss_index/           # FAISS vector index file
-│   └── vector_store.faiss
-├── app/
-│   ├── chatbot.py         # Core chatbot logic (RAG)
-│   ├── rag_utils.py       # Utility functions (embedding, search, loading)
-│   └── interface.py       # Gradio interface
-├── notebooks/
-│   └── data_cleaning.ipynb
-├── requirements.txt       # Python dependencies
-├── README.md              # This file
-└── main.py                # Script to launch the app
-```
+### **1. Data Loading & Caching**
+- Automatically fetches **World Bank datasets**:
+  - **Literacy Rate** (`SE.ADT.LITR.ZS`)
+  - **Life Expectancy** (`SP.DYN.LE00.IN`)
+  - **GDP** (`NY.GDP.MKTP.CD`)
+- Cleans and merges data into a unified format.
+- Saves results in a **SQLite database** for faster reuse.
 
----
+### **2. Question Answering**
+- Supports natural language queries like:
+  ```
+  GDP of France in 2020
+  Life expectancy in Japan in 2015
+  Literacy rate in India in 2018
+  ```
+- Looks up answers from the local cache.
+- Falls back to **live World Bank API** if data is missing locally.
+- As a last resort, can use a **Puppeteer-based web fallback** (if running).
 
-## 🗂️ Public Datasets Used
+### **3. Analytics & Statistics**
+- Descriptive statistics (count, mean, std, min, quartiles, max).
+- Pearson correlation between metrics.
+- **t-tests** between countries.
+- Simple **1-year linear regression forecasts**.
 
-- **WHO Global Health Indicators**
-- **World CO₂ Emissions Dataset**
-- **World Bank Development Indicators**
+### **4. Visualization**
+- Interactive **time series charts** for GDP, life expectancy, and literacy rate.
+- Custom start/end years.
+- Optional **forecast overlay**.
 
-> All datasets are open access, publicly available from sources like [Our World In Data](https://ourworldindata.org), [data.worldbank.org](https://data.worldbank.org), and [datahub.io](https://datahub.io).
-
----
-
-## ⚙️ How It Works
-
-1. **Data Cleaning & Preparation**
-   - Standardize and clean CSV datasets
-   - Convert data rows into readable text chunks
-
-2. **Semantic Indexing with Embeddings**
-   - Use `sentence-transformers` to generate vector embeddings
-   - Store in a FAISS index for fast retrieval
-
-3. **Question Answering**
-   - When a user asks a question:
-     - Embed the question
-     - Retrieve relevant data chunks
-     - Feed those into GPT to generate an answer
-
-4. **User Interface**
-   - Simple Gradio app where users can type questions and get answers
-   - Retrieved context is shown for transparency
+### **5. Gradio Web Interface**
+- **Ask** mode: free-text Q&A.
+- **Explore** mode: dropdown selection for metric/country, charts, stats, and predictions.
 
 ---
 
-## 🧪 Example Questions
+## 🛠 Installation
 
-- "What was the life expectancy in France in 2020?"
-- "Which countries had the highest CO₂ emissions in 2015?"
-- "How has life expectancy changed in Africa since 1990?"
-
----
-
-## 🚀 How to Run the Project
-
-### 1. Clone the repository
+### 1. Clone this repository
 ```bash
-git clone https://github.com/your-username/public-dataset-chatbot.git
-cd public-dataset-chatbot
+git clone https://github.com/yourusername/public-data-qa.git
+cd public-data-qa
 ```
 
 ### 2. Install dependencies
@@ -87,54 +56,77 @@ cd public-dataset-chatbot
 pip install -r requirements.txt
 ```
 
-### 3. Launch the chatbot app
-```bash
-python main.py
+**`requirements.txt`** should contain:
+```
+pandas
+numpy
+matplotlib
+scipy
+scikit-learn
+gradio
+requests
 ```
 
 ---
 
-## 🧰 Tech Stack
+## ▶️ Usage
 
-| Purpose                     | Tools/Libraries                   |
-|-----------------------------|------------------------------------|
-| Data manipulation           | `pandas`, `numpy`                  |
-| Data visualization          | `seaborn`, `matplotlib`            |
-| NLP embeddings              | `sentence-transformers`            |
-| Vector search               | `faiss`                            |
-| LLM for answering           | `openai`, `transformers`           |
-| User interface              | `gradio`                           |
+### **Run the app**
+```bash
+python qa_engine.py
+```
 
----
-
-## ⚖️ Ethical Considerations
-
-- **Data Bias**: Some countries may have incomplete or unreliable data
-- **LLM Hallucinations**: GPT may generate incorrect answers even with context
-- **Transparency**: Retrieved data is displayed to help users verify answers
-- **Explainability**: The model explains its answers based on the input context
+The interface will start locally at:
+```
+http://0.0.0.0:7860
+```
 
 ---
 
-## 💡 Future Improvements
+## 💬 Example Questions
 
-- Add support for more datasets with automatic loading
-- Use ChromaDB or Pinecone as scalable vector DB
-- Enable summarization of trends using GPT
-- Multilingual support for questions and answers
+**In Ask mode:**
+- `GDP of France in 2020`
+- `Life expectancy in Japan in 2015`
+- `Literacy rate in India in 2018`
+- `Correlation between GDP and life expectancy in Germany`
+- `Predict GDP of Canada in 2022`
+
+**In Explore mode:**
+- Choose a **metric** (GDP / life expectancy / literacy rate).
+- Choose a **country**.
+- Set optional **start** and **end years**.
+- View **charts**, **stats**, and **forecasts**.
+
+---
+
+## 📂 Project Structure
+```
+qa_engine.py       # Main application code
+public_data.db     # SQLite cache (auto-generated)
+requirements.txt   # Dependencies
+```
+
+---
+
+## 🔌 Optional Puppeteer Fallback
+If you have a Puppeteer-based web scraper running locally (Node.js API at `http://localhost:3000/ask`),  
+the chatbot will use it for **general web queries** when the World Bank API cannot answer.
+
+---
+
+## 📡 Data Source
+All metrics are from the **World Bank Open Data API**:
+- https://data.worldbank.org/
+
+---
+
+## ⚠️ Notes & Limitations
+- Only **GDP**, **life expectancy**, and **literacy rate** are supported for now.
+- Live lookups require **internet access**.
+- Puppeteer fallback is optional and **disabled by default** unless you run the API locally.
 
 ---
 
 ## 📜 License
-
-This is an academic project under the MIT License.  
-All data is licensed under the terms of their original sources (WHO, World Bank, etc.).
-
----
-
-## 👤 Author
-
-**Naomie Marciano**  
-Built as part of a project with OMNILab & BaiYuLan Open AI Community
-
----
+This project is released under the **MIT License**.
