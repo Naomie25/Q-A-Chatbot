@@ -63,8 +63,8 @@ The system aims to make global socio-economic data more accessible, helping stud
 
 ### 1. Clone this repository
 ```bash
-git clone https://github.com/yourusername/public-data-qa.git
-cd public-data-qa
+git clone https://github.com/Naomie25/Q-A-Chatbot
+cd Q-A-Chatbot
 ```
 
 ### 2. Install dependencies
