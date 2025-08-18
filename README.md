@@ -1,4 +1,7 @@
 # 📊 Public Data QA Chatbot + Analytics
+Links for Presentation
+PPT: https://www.loom.com/share/234dddf70a9f431a9d835bad030d2b03
+UI+code: 
 
 An interactive **Q&A chatbot** and **data exploration tool** built with Python, Pandas, Gradio, and World Bank Open Data.  
 It allows you to **ask questions** about GDP, life expectancy, and literacy rates for any country, and also **explore trends** with charts, descriptive statistics, and forecasts.
