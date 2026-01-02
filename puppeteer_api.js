@@ -4,66 +4,76 @@ const puppeteer = require('puppeteer');
 const app = express();
 const PORT = 3000;
 
-app.get('/ask', async (req, res) => {
-  const query = req.query.q;
+app.use(express.json());
+
+app.post('/ask', async (req, res) => {
+  const query = req.body.query;
+
   if (!query) {
-    return res.status(400).json({ error: 'Missing query parameter "q"' });
+    return res.status(400).json({ error: 'Missing field "query"' });
   }
 
+  console.log('🔎 Received query:', query);
+
+  let browser;
   try {
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
+
     const page = await browser.newPage();
 
-    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-    await page.goto(searchUrl, { waitUntil: 'domcontentloaded' });
+    // User-Agent "normal"
+    await page.setUserAgent(
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    );
 
-    // Essayer de récupérer le snippet de réponse Google
-    // Selector souvent utilisé pour le résumé en haut :
-    // div[data-attrid="wa:/description"] ou div[data-tts="answers"] ou div[jsname="W297wb"]
+    // On va directement sur Wikipedia plutôt que Google
+    const searchUrl =
+      'https://en.wikipedia.org/wiki/Special:Search?go=Go&search=' +
+      encodeURIComponent(query);
 
+    console.log('🌍 Navigating to:', searchUrl);
+
+    await page.goto(searchUrl, { waitUntil: 'networkidle2' });
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Récupérer le premier paragraphe un peu propre
     const snippet = await page.evaluate(() => {
-      // Plusieurs sélecteurs possibles, on essaie dans l’ordre
-
-      const selectors = [
-        'div[data-attrid="wa:/description"]',
-        'div[data-tts="answers"]',
-        'div[jsname="W297wb"]',
-        'div[data-attrid="kc:/location/location:short_description"]',
-        'div[data-attrid="kc:/people/person:short_description"]',
-        '.V3FYCf', // autre snippet possible
-        '.hgKElc'  // snippet dans knowledge panel
-      ];
-
-      for (const sel of selectors) {
-        const el = document.querySelector(sel);
-        if (el && el.innerText.trim().length > 0) {
-          return el.innerText.trim();
+      // Si on est redirigé directement sur un article :
+      const paragraphs = document.querySelectorAll('#mw-content-text p');
+      for (const p of paragraphs) {
+        const text = p.innerText.trim();
+        if (text.length > 50) {
+          return text.slice(0, 500); // on limite un peu
         }
       }
-      // fallback : récupérer le premier paragraphe textuel dans le résultat de recherche
-      const firstResult = document.querySelector('.g .VwiC3b');
-      if (firstResult) {
-        return firstResult.innerText.trim();
+      // Fallback : tout le texte de la page, tronqué
+      if (document.body && document.body.innerText) {
+        return document.body.innerText.trim().slice(0, 500);
       }
       return null;
     });
 
-    await browser.close();
-
-    if (snippet) {
-      res.json({ answer: snippet });
-    } else {
-      // fallback si pas trouvé
-      res.json({ answer: "No direct snippet found, try another query." });
+    if (!snippet) {
+      console.log('⚠️ No snippet found on Wikipedia for query:', query);
+      return res.json({ answer: 'No snippet found on Wikipedia.' });
     }
+
+    console.log('✅ Snippet found, length:', snippet.length);
+    return res.json({ answer: snippet });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('❌ Error in /ask:', error);
+    return res.status(500).json({ error: error.message });
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
 });
 
 app.listen(PORT, () => {
   console.log(`Puppeteer server listening on http://localhost:${PORT}`);
 });
+

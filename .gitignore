@@ -1,12 +1,15 @@
-# Ignorer l'environnement virtuel Python
+# Python
 venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Secrets
+kaggle.json
 .env
 
-# Ignorer les fichiers pycache
-__pycache__/
-*.py[cod]
-
-# Ignorer fichiers système
+# OS / IDE
 .DS_Store
-
-node_modules
+.vscode/
